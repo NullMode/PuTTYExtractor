@@ -7,8 +7,8 @@ $defined_options += ,('PortNumber','-p')
 Function set_option
 {
     param ($option, $value)
-    if ($value -ne "") # THIS IS ALWAYS TRUE?!
-    {   
+    if ($value -ne "") #TODO check it required
+    {
         $r='{0} "{1}"' -f $option, $value
         return $r
     }
@@ -16,19 +16,25 @@ Function set_option
 }
 
 Get-ChildItem -Path Microsoft.PowerShell.Core\Registry::HKEY_CURRENT_USER\Software\SimonTatham\PuTTY\Sessions | ForEach-Object {
-    
     if ($_.GetValue('HostName') -ne "" -and $_.GetValue('Protocol') -eq "ssh"){
         $hostname=$_.GetValue('HostName')
         $f = $true
-        foreach ($opt in $defined_options){
+
+        # Extract defined_options from session settings
+        foreach ($opt in $defined_options)
+        {
+            # Fortmat options for insertion
             $formatted = set_option $opt[1] $_.GetValue($opt[0])
-            if ($f -eq $true){ 
-                if ($_.GetValue($opt[0])){ # THIS IS ALWAYS TRUE?!
-                    
+            if ($f -eq $true)
+            {
+                if ($_.GetValue($opt[0])) # Check if required
+                {
                     $options = ,($formatted)
                     $f = $false
                 }
-            } else {
+            }
+            else
+            {
                 $options += ,($formatted)
             }
         }
