@@ -45,3 +45,4 @@ You may also be interested in the following:
 * Hunt down other useful options to extract
 * Implement output formats with arguments
 * Support for reading PuTTY settings file (not in registry)
+* Tidy up dirty dirty PowerShell
