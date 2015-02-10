@@ -3,15 +3,20 @@
 from _winreg import *
 
 output_formats = [
-    'ssh {hostname} {options}',
-    'ssh.exe {hostname} {options}',
+    'ssh {hostname} -p {port} {options}',
+    'telnet {hostname} {port} {options}',
 ]
 
 defined_options = [
     {'identifier': 'PublicKeyFile', 'option_switch': '-i'},
     {'identifier': 'RemoteCommand', 'option_switch': '-t'},
-    {'identifier': 'PortNumber', 'option_switch': '-p'},
 ]
+
+def set_format(protocol):
+    if protocol == "ssh":
+    	return 0
+    if protocol == "telnet":
+	return 1
 
 
 # Returns an empty string if not set
@@ -33,15 +38,18 @@ def main():
 
             protocol = QueryValueEx(sub_key, "Protocol")[0]
             hostname = QueryValueEx(sub_key, "HostName")[0]
+            port     = QueryValueEx(sub_key, "PortNumber")[0]
 
-            if protocol == "ssh" and hostname != "":
+            if (protocol == "ssh" or protocol == "telnet") and hostname != "":
+                format_type = set_format(protocol)
                 options = []
                 for opt in defined_options:
                     options.append(set_option(opt['option_switch'],
                                               QueryValueEx(sub_key,
                                               opt['identifier'])[0]))
 
-                print output_formats[0].format(hostname=hostname,
+                print output_formats[format_type].format(hostname=hostname,
+                                               port=port,
                                                options=" ".join(options))
         except EnvironmentError:
             break
